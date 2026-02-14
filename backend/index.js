@@ -39,8 +39,11 @@ app.use("/api/notification",notificationRouter);
 app.use('/api/messages', messageRoutes);
 
 if (process.env.NODE_ENV === "production") {
+    // 1. Serve static files (CSS, JS, Images)
     app.use(express.static(path.join(__dirname, "frontend", "dist")));
-    app.get("*", (req, res) => {
+
+    // 2. Use a Regular Expression /.*/ instead of the string "*"
+    app.get(/.*/, (req, res) => {
         res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
     });
 }
