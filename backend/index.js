@@ -3,6 +3,7 @@ import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import dotenv from 'dotenv'
 import { v2 as cloudinary } from "cloudinary";
+import path from "path";
 
 
 
@@ -24,6 +25,7 @@ cloudinary.config({
 });
 
 const app = express();
+const __dirname = path.resolve()
 
 app.use(express.json({limit : "5mb"}));// limit shouldn't be too high to prevent DOS attack i.e denial of service from attackers  // to parse req.body
 app.use(express.urlencoded({ extended: true })); // to parse form data(urlencoded)
@@ -36,11 +38,16 @@ app.use("/api/post",postRouter);
 app.use("/api/notification",notificationRouter);
 app.use('/api/messages', messageRoutes);
 
+if(process.env.NODE_ENV === "production"){
+	app.use(express.static(path.join(__dirname, "/frontend/dist")));
+	app.get("*",(req,res)=>{
+		res.sendFile(path.resolve(__dirname,"frontend", "dist", "index.html"));
+	})
+}
+
 const PORT = process.env.PORT || 3000
 
-app.get("/",(req,res)=>{
-    res.json({success:true,message: "Kya hal bsdk"});
-})
+
 
 app.listen(PORT,()=>{
     connectMongoDB();
